@@ -1,0 +1,22 @@
+{
+  "name": "plan2net/bapatren",
+  "license": "GNU GENERAL PUBLIC LICENSE Version 3",
+  "authors": [
+    {
+      "name": "Wolfgang Klinger",
+      "role": "Lead Developer"
+    }
+  ],
+  "description": "Enhance the backend page tree for TYPO3 CMS 9+",
+  "require": {
+    "php": ">=7.0.0",
+    "cweagans/composer-patches": "^1.6",
+    "typo3/cms-backend": "9.5.10"
+  },
+  "type": "typo3-cms-extension",
+  "autoload": {
+    "psr-4": {
+      "Plan2net\\Bapatren\\": "Classes"
+    }
+  }
+}

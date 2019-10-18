@@ -1,0 +1,155 @@
++++ Classes/Controller/Page/TreeController.php
+@@ -192,12 +192,12 @@
+         } else {
+             $entryPoints = $this->getAllEntryPointPageTrees();
+         }
+-        $items = [];
++        $items = [[]];
+         foreach ($entryPoints as $page) {
+-            $items = array_merge($items, $this->pagesToFlatArray($page, (int)$page['uid']));
++            $items[] = $this->pagesToFlatArray($page, (int)$page['uid']);
+         }
+
+-        return new JsonResponse($items);
++        return new JsonResponse(array_merge(...$items));
+     }
+
+     /**
+@@ -280,8 +280,8 @@
+             $prefix = htmlspecialchars('[' . $pageId . '] ');
+         }
+
+-        $items = [];
+-        $items[] = [
++        $items = [[]];
++        $items[] = [[
+             // Used to track if the tree item is collapsed or not
+             'stateIdentifier' => $identifier,
+             'identifier' => $pageId,
+@@ -306,13 +306,13 @@
+             'isMountPoint' => $depth === 0,
+             'mountPoint' => $entryPoint,
+             'workspaceId' => !empty($page['t3ver_oid']) ? $page['t3ver_oid'] : $pageId,
+-        ];
++        ]];
+         if (!$stopPageTree) {
+             foreach ($page['_children'] as $child) {
+-                $items = array_merge($items, $this->pagesToFlatArray($child, $entryPoint, $depth + 1, ['backgroundColor' => $backgroundColor]));
++                $items[] = $this->pagesToFlatArray($child, $entryPoint, $depth + 1, ['backgroundColor' => $backgroundColor]);
+             }
+         }
+-        return $items;
++        return array_merge(...$items);
+     }
+
+     /**
++++ Resources/Public/JavaScript/PageTree/PageTree.js
+@@ -46,6 +46,10 @@
+     PageTree.prototype.initialize = function(selector, settings) {
+       var _this = this;
+
++      if (!fsMod.navFrameHighlightedID.web) {
++         fsMod.navFrameHighlightedID.web = Persistent.get('BackendComponents.States.Pagetree.stateHash.lastSelectedNode');
++      }
++
+       if (!_super_.initialize.call(_this, selector, settings)) {
+         return false;
+       }
+@@ -197,6 +201,7 @@
+       fsMod.recentIds.web = node.identifier;
+       fsMod.currentBank = node.stateIdentifier.split('_')[0];
+       fsMod.navFrameHighlightedID.web = node.stateIdentifier;
++      Persistent.set('BackendComponents.States.Pagetree.stateHash.lastSelectedNode', node.stateIdentifier);
+
+       var separator = '?';
+       if (currentSubScript.indexOf('?') !== -1) {
+@@ -263,6 +268,20 @@
+
+     PageTree.prototype.showChildren = function(node) {
+       _super_.showChildren(node);
++      var nodeStateIdentifier = node.stateIdentifier;
++      var childrenLoaded = false;
++      this.nodes.some(function (node) {
++        if (node.parentsStateIdentifier.indexOf(nodeStateIdentifier) !== -1) {
++          childrenLoaded = true;
++          return true;
++        }
++        childrenLoaded = false;
++      });
++
++      if (!childrenLoaded) {
++        this.loadData(node);
++      }
++
+       Persistent.set('BackendComponents.States.Pagetree.stateHash.' + node.stateIdentifier, 1);
+     };
+
++++ Resources/Public/JavaScript/SvgTree.js
+@@ -276,11 +276,26 @@
+       /**
+        * Loads tree data (json) from configured url
+        */
+-      loadData: function() {
++      loadData: function(node, full) {
+         var _this = this;
++        if (!full) {
+         _this.nodesAddPlaceholder();
++        }
++
++        var additionalParameters = '';
++        if (node) {
++          additionalParameters += '&pid=' + node.identifier + '&depth=' + node.depth;
++        }
++        if (full) {
++          additionalParameters += '&full=1';
++        }
+ 
+-        d3.json(this.settings.dataUrl, function(error, json) {
++        d3.json(this.settings.dataUrl + additionalParameters, function(error, json) {
++          // cancel the current response processing if the full page tree has already been loaded
++          if (node && _this.wrapper.data('svgtree-fully-initialized') === true) {
++            _this.nodesRemovePlaceholder();
++            return;
++          }
+           if (error) {
+             var title = TYPO3.lang.pagetree_networkErrorTitle;
+             var desc = TYPO3.lang.pagetree_networkErrorDesc;
+@@ -298,8 +313,38 @@
+           }
+ 
+           var nodes = Array.isArray(json) ? json : [];
++          if (node) {
++            // search for node
++            _this.nodes.some(function(singleNode, key) {
++              if (node.identifier === singleNode.identifier) {
++                _this.nodes.splice(key, 1, ...nodes);
++                return true;
++              }
++            });
++            nodes = _this.nodes;
++          }
++          if (full) {
++            // expand the nodes which have been expanded between the requests
++            nodes.forEach(function (newNode) {
++              _this.nodes.some(function (oldNode) {
++                if (newNode.identifier === oldNode.identifier) {
++                  newNode.expanded = oldNode.expanded;
++                  return true;
++                }
++              });
++            });
++          }
+           _this.replaceData(nodes);
+           _this.nodesRemovePlaceholder();
++          if (!full) {
++            _this.loadData(null, true);
++          }
++          else {
++            if (_this.wrapper.data('svgtree-fully-initialized') !== true) {
++              _this.wrapper.data('svgtree-fully-initialized', true);
++              _this.wrapper.trigger('svgTree.fullyInitialized');
++            }
++          }
+         });
+       },
+ 
