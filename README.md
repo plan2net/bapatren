@@ -11,9 +11,13 @@ You need "cweagans/composer-patches" to patch core files
     …
     "patches": {
       "typo3/cms-backend": {
-        "ḅapaṭrẹn typo3-cms/backend page tree patches": "https://raw.githubusercontent.com/plan2net/bapatren/1.2.0/patches/backend.patch"
+        "ḅapaṭrẹn typo3-cms/backend page tree patches": "https://raw.githubusercontent.com/plan2net/bapatren/<version number>/patches/backend.patch"
       }
     }
 ```
 
 (replace the version string with the one that's compatible with your TYPO3 version)
+
+# Update (for developers)
+
+Tag with a version number corresponding to the version of TYPO3 CMS the patch applies.
