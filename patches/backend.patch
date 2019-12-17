@@ -1,5 +1,5 @@
 +++ Classes/Controller/Page/TreeController.php
-@@ -192,12 +192,12 @@
+@@ -194,12 +194,12 @@
          } else {
              $entryPoints = $this->getAllEntryPointPageTrees();
          }
@@ -15,23 +15,21 @@
      }
 
      /**
-@@ -280,8 +280,8 @@
+@@ -281,7 +281,6 @@
              $prefix = htmlspecialchars('[' . $pageId . '] ');
          }
 
 -        $items = [];
--        $items[] = [
-+        $items = [[]];
-+        $items[] = [[
+         $item = [
              // Used to track if the tree item is collapsed or not
              'stateIdentifier' => $identifier,
-             'identifier' => $pageId,
-@@ -306,13 +306,13 @@
-             'isMountPoint' => $depth === 0,
-             'mountPoint' => $entryPoint,
-             'workspaceId' => !empty($page['t3ver_oid']) ? $page['t3ver_oid'] : $pageId,
--        ];
-+        ]];
+@@ -334,13 +333,14 @@
+             }
+         }
+
+-        $items[] = $item;
++        $items = [[]];
++        $items[] = [$item];
          if (!$stopPageTree) {
              foreach ($page['_children'] as $child) {
 -                $items = array_merge($items, $this->pagesToFlatArray($child, $entryPoint, $depth + 1, ['backgroundColor' => $backgroundColor]));
