@@ -20,7 +20,7 @@ $EM_CONF['bapatren'] = [
     'version' => '1.2.2',
     'constraints' => [
         'depends' => [
-            'backend' => '9.5.12'
+            'backend' => '9.5.12-9.5.13'
         ],
         'conflicts' => [],
         'suggests' => []
