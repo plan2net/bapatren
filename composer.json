@@ -11,7 +11,7 @@
   "require": {
     "php": ">=7.0.0",
     "cweagans/composer-patches": "^1.6",
-    "typo3/cms-backend": "9.5.12 - 9.5.17"
+    "typo3/cms-backend": "9.5.12 - 9.5.18"
   },
   "type": "typo3-cms-extension",
   "autoload": {
