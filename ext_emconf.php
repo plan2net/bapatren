@@ -17,10 +17,10 @@ $EM_CONF['bapatren'] = [
     'modify_tables' => '',
     'clearCacheOnLoad' => 1,
     'lockType' => '',
-    'version' => '9.5.14',
+    'version' => '9.5.19',
     'constraints' => [
         'depends' => [
-            'backend' => '9.5.12-9.5.18'
+            'backend' => '9.5.12-9.5.19'
         ],
         'conflicts' => [],
         'suggests' => []
