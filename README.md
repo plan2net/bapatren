@@ -1,5 +1,7 @@
 # ḅapaṭrẹn — The TYPO3 CMS 9 backend page tree enhancements
 
+Since TYPO3 9.5.20, the performance improvements are part of the TYPO3 core, so you no longer need this extension!
+
 ## Requirements
 
 You need "cweagans/composer-patches" to patch core files
